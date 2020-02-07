@@ -1,0 +1,38 @@
+<!--
+ * @Author: your name
+ * @Date: 2020-01-15 19:32:08
+ * @LastEditTime : 2020-01-15 20:28:42
+ * @LastEditors  : Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \ShangGuiGu\Demo\练习\懒加载\缩放和旋转\test.html
+ -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+      #box {
+        width: 100%;
+        height: 200px;
+        background: skyblue;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="box"></div>
+    <script src="./gesture.js"></script>
+<script>
+    let box=document.querySelector('#box');
+    gesture(box,{
+        
+    })
+</script>
+  </body>
+</html>

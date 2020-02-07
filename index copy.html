@@ -1,0 +1,103 @@
+<!--
+ * @Author: your name
+ * @Date: 2020-01-14 19:24:50
+ * @LastEditTime : 2020-01-14 22:57:59
+ * @LastEditors  : Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \ShangGuiGu\Demo\练习\懒加载\index.html
+ -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="css/index.css">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app">
+        <header id="header">三国女将</header>
+        <section id="section">
+            <div id="content">
+                <ul id="img-list">
+                
+                </ul>
+                <div class="loading"></div>
+            </div>
+        </section>
+    </div>
+  
+<script src="js/transformCSS.js"></script>
+<script src="js/tweenTransition.js"></script>
+<script src="js/touchscroll.js"></script>
+<script>
+    let section=document.querySelector('#section')
+    let content=document.querySelector('#content');
+    let imgList=content.querySelector('#img-list');
+    let header=document.querySelector('#header');
+
+    //图片仓库
+    let imgArr=[];
+    for (let i = 0; i < 100; i++) {
+        let src='./img/'+(i%18+1)+'.jpg';
+        imgArr.push(src);        
+    }
+    function createLi() {
+        for (let i = 0; i < 16; i++) {
+            let li=document.createElement('li');
+            let img=document.createElement('img');
+            img.dataset.src=imgArr[i];
+            li.appendChild(img);   
+            imgList.appendChild(li);
+            img.style.opacity='0';     
+        }
+    }
+    createLi();
+    let lis=imgList.querySelectorAll('li');
+    new Touchscroll('#section','#content',{
+        end:function(){
+            console.log('移动');
+            lazyLoad();
+        }
+    });
+    function lazyLoad() {
+        lis.forEach(function (li) {
+            let img=li.querySelector('img');
+            //判断img是否有src
+            if(img.src) return;
+            //检测 li 的尺寸位置
+            let liTop=li.getBoundingClientRect().top;
+            let liBottom=li.getBoundingClientRect().bottom;
+            // console.log(li.getBoundingClientRect());    
+            //滚动的高度
+            // let scrollTop=Math.abs(transformCSS(content,'translateY'));
+            let scrollTop=content.getBoundingClientRect().top;
+            let scrollBottom=content.getBoundingClientRect().bottom;
+            //容器的高度
+            let sectionHeight=section.getBoundingClientRect().height;
+
+            console.log(liTop <= sectionHeight);
+            if(liTop <= sectionHeight &&  liBottom-header.offsetHeight >0){
+
+                setTimeout(function() {
+                    img.src=img.dataset.src;
+                    img.addEventListener('load', function () {
+                        img.style.opacity='1';
+                    });
+                    //src获取不到 报错
+                    img.addEventListener('error', function () {
+                        img.src='img/noimage.png';
+                    })
+                    console.log('aaa');
+                }, 100);
+            }
+            
+        })
+    }
+    lazyLoad();
+</script>
+
+</body>
+</html>

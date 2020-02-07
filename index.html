@@ -1,0 +1,128 @@
+<!--
+ * @Author: your name
+ * @Date: 2020-01-14 19:24:50
+ * @LastEditTime : 2020-02-05 15:34:57
+ * @LastEditors  : Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \ShangGuiGu\Demo\练习\懒加载\index.html
+ -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="css/index.css">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app">
+        <header id="header">三国女将</header>
+        <section id="section">
+            <div id="content">
+                <ul id="img-list">
+                
+                </ul>
+                <div class="loading">加载更多</div>
+            </div>
+        </section>
+        <div id="big-view-area">
+            <header>大图预览<span class="close">&times;</span></header>
+            <div class="view">
+                <img src="img/1.jpg" alt="">
+            </div>
+        </div>
+    </div>
+  
+<script src="js/transformCSS.js"></script>
+<script src="js/tweenTransition.js"></script>
+<script src="js/touchscroll.js"></script>
+<script>
+    let section=document.querySelector('#section')
+    let content=document.querySelector('#content');
+    let imgList=content.querySelector('#img-list');
+    let loading=content.querySelector('.loading');
+
+    //图片仓库
+    let imgArr=[];
+    for (let i = 0; i < 100; i++) {
+        let src='./img/'+(i%18+1)+'.jpg';
+        imgArr.push(src);        
+    }
+    function createLi() {
+        for (let i = 0; i < 50; i++) {
+            let li=document.createElement('li');
+            let img=document.createElement('img');
+            img.dataset.src=imgArr[i];
+            li.appendChild(img);
+            imgList.appendChild(li);
+            img.style.opacity='0';
+        }
+    }
+    createLi();
+    
+    let touchScrollReturn = new Touchscroll('#section','#content',{
+        start:function(){
+
+        },
+        move:function(){
+            // console.log('移动');
+            lazyLoad();
+            //滚动是否越界
+            let translateY=transformCSS(content,'translateY');
+            let minTranslateY=-(content.offsetHeight-section.offsetHeight);
+            if(translateY<minTranslateY){
+                let loadingBottom=Math.abs(translateY-minTranslateY);
+                let scale=loadingBottom/loading.offsetHeight;
+                transformCSS(loading,'scale',Math.min(1,scale));
+            }
+        },
+        end:function(){
+            let minTranslateY=-(content.offsetHeight-section.offsetHeight);
+            let minEstTranslateY=minTranslateY-loading.offsetHeight;
+            let translateY=transformCSS(content,'translateY');
+            console.log(translateY<=minEstTranslateY)
+            if(translateY<=minEstTranslateY){
+                createLi();
+                touchScrollReturn.setScrollBar();
+            }
+        },
+        step:function(){
+            lazyLoad();
+        }
+    });
+    function lazyLoad() {
+        let lis=imgList.querySelectorAll('li');
+        lis.forEach(function (li) {
+            let img=li.querySelector('img');
+            //判断img是否有src
+            if(img.src) return;
+            //检测 li 的尺寸位置
+            let liTop=li.offsetTop;
+            // console.log(li.getBoundingClientRect())
+            //滚动的高度
+            let scrollTop=Math.abs(transformCSS(content,'translateY'));
+            //容器的高度
+            let contentHeight=section.offsetHeight;
+            // item.getBoundingClientRect().top<=document.documentElement.clientHeight&&item.getBoundingClientRect().bottom>=0
+            if(liTop <= scrollTop+contentHeight &&  liTop+li.offsetTop>=scrollTop){
+                setTimeout(function() {
+                    img.src=img.dataset.src;
+                    img.addEventListener('load', function () {
+                        img.style.opacity='1';
+                    });
+                    //src获取不到 报错
+                    img.addEventListener('error', function () {
+                        img.src='img/noimage.png';
+                    })
+                }, 1000);
+            }
+            
+        })
+    }
+    lazyLoad();
+</script>
+
+</body>
+</html>
